@@ -32,4 +32,33 @@ class PetController extends Controller
             return redirect()->back()->with('error', 'Wystąpił błąd podczas łączenia z API: ' . $e->getMessage());
         }
     }
+
+    public function create()
+    {
+        return view('pets.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'status' => 'required',
+        ]);
+
+        try {
+            $response = Http::post($this->apiUrl, [
+                'name' => $request->name,
+                'status' => $request->status,
+            ]);
+            if ($response->successful()) {
+                return redirect()->route('pets.index')->with('success', 'Zwierzę zostało dodane');
+            } else {
+                Log::error('Błąd dodawania zwierzęcia: ' . $response->body());
+                return redirect()->back()->with('error', 'Błąd dodawania zwierzęcia');
+            }
+        } catch (\Exception $e) {
+            Log::error('Błąd dodawania zwierzęcia: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Wystąpił błąd podczas łączenia z API: ' . $e->getMessage());
+        }
+    }
 }
