@@ -61,4 +61,23 @@ class PetController extends Controller
             return redirect()->back()->with('error', 'Wystąpił błąd podczas łączenia z API: ' . $e->getMessage());
         }
     }
+
+    public function show($id){
+        try{
+            $response = Http::get($this->apiUrl . '/pet/' . $id);
+
+            if($response->successful()){
+                $pet = $response->json();
+                return view('pets.show', compact('pet'));
+            } else {
+                Log::error('Błąd pobierania zwierzęcia: ' . $response->body());
+                return redirect()->back()->with('error', 'Błąd pobierania zwierzęcia');
+            }
+        }catch(\Exception $e){
+            Log::error('Błąd pobierania zwierzęcia: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Wystąpił błąd podczas łączenia z API: ' . $e->getMessage());
+        }
+    }
+
+
 }
